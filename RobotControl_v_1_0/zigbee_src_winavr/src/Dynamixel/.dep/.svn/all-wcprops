@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/48/trunk/RobotControl_v_1_0/zigbee_src_winavr/src/Dynamixel/.dep
+END
+dynamixel.o.d
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/48/trunk/RobotControl_v_1_0/zigbee_src_winavr/src/Dynamixel/.dep/dynamixel.o.d
+END
+dxl_hal.o.d
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/48/trunk/RobotControl_v_1_0/zigbee_src_winavr/src/Dynamixel/.dep/dxl_hal.o.d
+END

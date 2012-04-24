@@ -1,0 +1,1 @@
+Contains the main abstractions and classes of the Optical Flow algorithm. The data class, which contains information shared by the optical flow algorithm and the Workstation-Side Controller is defined here. The WSC is also here.
