@@ -1,14 +1,15 @@
 package jaer.myjaer.neuron;
 
 import java.awt.geom.Point2D;
-
 import jaer.myjaer.robotcontrol.AbstractImageReceiver;
 import jaer.myjaer.robotcontrol.AbstractImageReceiver.FilterLevel;
-import jaer.myjaer.robotcontrol.ImageReceiver4;
+import jaer.myjaer.robotcontrol.ImageReceiver;
 
 /**
- * A memory bank contains both real and temporary memories. For easier access
- * @author vanxa
+ * A memory bank is used to store signals within the neuron object.
+ * It contains both real and temporary memory stores, where the temporary memory
+ * is wiped when a processing iteration terminates. 
+ * @author Ivan Konstantinov
  *
  */
 public class MemoryBank
@@ -16,34 +17,35 @@ public class MemoryBank
 	int id; /** 0-low,1-high */
 	
 	/**
-	 * Default angle between two radii
+	 * The real memory instance
 	 */
 	Memory realMemory;
 	
 	/**
-	 * Default angle between two radii
+	 * The temporary memory instance
 	 */
 	Memory tempMemory;
 	
 	/**
-	 * Default angle between two radii
+	 * The index of the neuron
 	 */
-	int index;
+	int neuronIndex;
 	
 	
 	/**
-	 * Default angle between two radii
+	 * This is switched to true if the contents of the temporary memory
+     * instance must be copied into the real memory
 	 */
-	boolean to_copy;
+	boolean shouldCopy;
 	
 	
 	/**
-	 * Default angle between two radii
+	 * The neuron object
 	 */
 	private Neuron neuron;
 	
 	/**
-	 * Default angle between two radii
+	 * The polarity bit of the last stored signal
 	 */
 	private int lastSignalPolarity = -1;
 	
@@ -51,40 +53,49 @@ public class MemoryBank
 	private int lastTimeSwitched = 0;
 	
 	/**
-	 * Default angle between two radii
+	 * The image processor instance must extend the AbstractImageReceiver class
 	 */
 	private static AbstractImageReceiver filter;
 	
 	/**
-	 * Default angle between two radii
+	 * Constructor
+     * @param id: The id of the the memory bank
+     * @param neuron: The neuron object
 	 */
-	public MemoryBank(int id, int index, Neuron neuron)
+	public MemoryBank(int id, Neuron neuron)
 	{
-		this.index = index;
 		this.id = id;
-		realMemory = new Memory(index, neuron);
-		tempMemory = new Memory(index, neuron);
-		to_copy=false;
 		this.neuron = neuron;
+        neuronIndex = neuron.getIndex();
+		realMemory = new Memory(neuronIndex, neuron);
+		tempMemory = new Memory(neuronIndex, neuron);
+		shouldCopy=false;
 	}
 	
 	/**
-	 * Default angle between two radii
+	 * Schedules the bank's temporary memory contents to be copied into the
+     * real memory instance.
+     * @param shouldCopy: Boolean value determining whether the data transfer should occur
 	 */
-	public void scheduleForCopy(boolean to_copy) {
-		this.to_copy = to_copy;
+	public void scheduleForCopy(boolean shouldCopy) {
+		this.shouldCopy = shouldCopy;
 	}
 	
 	/**
-	 * Default angle between two radii
+	 * Returns shouldCopy
+     * @return shouldCopy: the boolean value which determines whether data transfer
+     * between the temporary and real memory instances should occur
 	 */
 	public boolean isScheduledForCopy()
 	{
-		return to_copy;
+		return shouldCopy;
 	}
 
 	/**
-	 * Default angle between two radii
+	 * Resets the memory bank. There are two reset modes: hard and soft.
+     * A soft reset will only reset variables which are related to the firing
+     * behavior of the neuron. A hard reset will remove all data
+     * @param isHardReset: the type of reset action to be taken
 	 */
 	public void reset(boolean isHardReset)
 	{
@@ -92,7 +103,7 @@ public class MemoryBank
 		{
 			realMemory.eraseMemory();
 			tempMemory.eraseMemory();
-			to_copy = false;
+			shouldCopy = false;
 
 		}
 		lastSignalPolarity = -1;
@@ -101,20 +112,20 @@ public class MemoryBank
 	
 	
 	/**
-     * Update memory when not firing
-     * @param instance
+     * Update memory data when the neuron is not firing
+     * @param time: The time of update
      */
     synchronized public void silentUpdateMemory(int time)
     {
     	for(int index : realMemory.getSignalLabels())
        	{
        		Signal signal= realMemory.getSignals().get(index);
-       		//numberSignals.add(signal.getLabel());
        		if(time - signal.getExpectedArrivalTime() > filter.getArrivalThreshold())
        		{
        			signal.increasePriority(-1);
        			if(filter.LEVEL == FilterLevel.DEBUG)
 				{
+                    // Debug mode is ON
 					System.out.println("SILENTUPDATE:"+"NEURON:"+neuron.getCellNumber()+".Reducing priority of signal "+signal.getLabel()+
 							";Time:"+time+";expArrTime:"+signal.getExpectedArrivalTime()+";expVelocity:"+
 							signal.getExpectedVelocity()+";Priority is now:"+signal.getPriority());
@@ -127,10 +138,9 @@ public class MemoryBank
 				{
 					System.out.println("SILENTUPDATE:"+"NEURON:"+neuron.getCellNumber()+".Signal "+ signal.getLabel()+" scheduled for removal");
 				}
-       			//if(numberSignals.contains(signal.getLabel()))
-       				//numberSignals.remove(signal.getLabel());
        		}
        	}
+        // Actual signal removal occurs here in order to avoid ConcurrentModificationException errors
 		if(!realMemory.getScheduled().isEmpty())
 		{
 			try
@@ -145,26 +155,35 @@ public class MemoryBank
     }
     
     /**
-	 * It is best to reduce the number of signals: only send a signal if last signal had different (opposite) polarity
-	 * Also, because this flag may become stale (a neuron doesn't transmit any signals because it has transmitted a signal with same polarity,
-	 * but a very long time ago), a time threshold is set
-	 * This condition is also useful to reduce wrongly matched signals: neurons that fire consecutively 
-	 * from a single stimulus should not produce multiple signals
-	 */
+    * Checks whether the current stimulus polarity bit is the same as the last polarity bit that was computed.
+    * @param polarity: The current stimulus' polarity
+    * @param now: The current time of checking 
+    * @param return Boolean value, determining whether the current signal is a repeat (too close and identical) to the last detected signal
+    *
+    */
     public boolean checkPolarityCondition(int polarity, int now)
     {
+        /**
+         * It is best to reduce the number of signals: only send a signal if last signal had different (opposite) polarity
+         * Also, because this flag may become stale (a neuron doesn't transmit any signals because it has transmitted a signal with same polarity,
+         * but a very long time ago), a time threshold is set
+         * This condition is also useful to reduce wrongly matched signals: neurons that fire consecutively 
+         * from a single stimulus should not produce multiple signals
+         */
     	return polarity != lastSignalPolarity || (now - lastTimeSwitched) > filter.getSignalPolarityResetThreshold();
     }
     
     /**
-     * Update single memory bank when firing
-     * @param tempMemoryory 
-     * @param memory 
+     * Update a single memory bank when neuron has fired
+     * @param now: The time of update (current time)
      */
     synchronized public void updateSingleMemory(int now) 
     {
-    	Point2D.Float edge = neuron.computeAndReturnEdgePosition();
-    	if(edge == null) return;
+    	Point2D.Float edge = neuron.computeAndReturnEdgePosition(); // This is the (x,y) position of the currently detected stimulus
+    	if(edge == null) // If no edge detected, don't continue
+        {
+            return;
+        }
     	Point2D.Float location = neuron.getLocation();
     	Point2D.Float vector = new Point2D.Float(edge.x-location.x, edge.y-location.y);
     	float distance = (float) Math.sqrt(vector.x*vector.x + vector.y*vector.y);
@@ -189,7 +208,7 @@ public class MemoryBank
         	Signal match = realMemory.checkForMatch(now);
         	if(match == null || realMemory.is_memory_empty())
         	{        		
-        		Signal curr_signal = createNewSignal(this, 1, 1, polarity, now);
+        		Signal curr_signal = createNewSignal(id, polarity, now);
         		propagate(neighbor_memory, curr_signal);
         		lastSignalPolarity = polarity;
         		lastTimeSwitched = now;
@@ -235,15 +254,17 @@ public class MemoryBank
 	}
     
     /**
-	 * Default angle between two radii
+     * Creates a new signal and returns it
+     * @param id: The id of the memory bank 
+     * @param polarity: The polarity bit of the corresponding stimulus
+     * @param now: The timestamp of the signal (current time)
 	 */
-    Signal createNewSignal(MemoryBank bank_mem, int counter, int signal_counter,int polarity, int now) {
-    	float[] distances = neuron.getDistances(bank_mem.id); 
+    Signal createNewSignal(int id,int polarity, int now) {
+    	float[] distances = neuron.getDistances(id); 
 		float expectedVelocity = filter.getExpectedInitialSignalVelocity();
 		float travelTime = (distances[0] / expectedVelocity) * 1000000f;
 		int expectedArrivalTime = now + (int)travelTime;
-		Signal signal = new Signal(expectedArrivalTime, expectedVelocity, 4, signal_counter, counter, neuron.getLastEventTimestamp(), neuron.getLocation(), polarity);
-		//signal.setLabel(Neuron.increaseAndReturnSignalCounter()); // Check for clashes here!
+		Signal signal = new Signal(expectedArrivalTime, expectedVelocity, 4, 1, neuron.getLastEventTimestamp(), neuron.getLocation(), polarity);
 		signal.setLabel(signal.hashCode());
 		if(filter.LEVEL == FilterLevel.DEBUG)
 		{
@@ -257,7 +278,8 @@ public class MemoryBank
 	}
     
     /**
-	 * Default angle between two radii
+     * Returns the real memory instance
+     * @return realMemory: the real memory instance
 	 */
     public Memory getRealMemory()
     {
@@ -265,7 +287,8 @@ public class MemoryBank
     }
     
     /**
-	 * Default angle between two radii
+     * Returns the temporary memory instance
+     * @return tempMemory: the temporary memory instance
 	 */
     public Memory getTempMemory()
     {
@@ -273,12 +296,17 @@ public class MemoryBank
     }
     
     /**
-	 * Default angle between two radii
+	 * Propagate the signal along the neural radius, upwards (away from the nodal point), or downwards (towards the nodal
+     * point).
+     * @param neighborMemory: the neighboring memorym to which the signal is propagated
+     * @param signal: the signal to be propagated 
 	 */
     void propagate(MemoryBank neighborMemory, Signal signal)
     {
     	if(neighborMemory == null)
-    		return;
+        {    
+    		return; 
+        }
     	Neuron neighbor = neuron.fetchNeighbor(id);
     	if(filter.LEVEL == FilterLevel.DEBUG)
     		System.out.println("PROPAGATE: "+"NEURON:"+neuron.getCellNumber()+".Propagating signal " + signal.getLabel() + 
@@ -293,16 +321,17 @@ public class MemoryBank
     }
      
     /**
-	 * Default angle between two radii
+     * Setter for the Image Processor object
+     * @param AbstractImageReceiver : the image processor object 
 	 */
-    public static void setFilter(
-    		AbstractImageReceiver filter) {
-		if(filter instanceof ImageReceiver4)
-			MemoryBank.filter = (ImageReceiver4) filter;
+    public static void setFilter(AbstractImageReceiver filter) {
+		if(filter instanceof ImageReceiver)
+			MemoryBank.filter = (ImageReceiver) filter;
 	}
 	
     /**
-	 * Default angle between two radii
+     * Getter for the Image Processor object
+     * @return AbstractImageReceiver: The image processor must be an instance of an AbstractImageReceiver
 	 */
 	public static AbstractImageReceiver getFilter()
 	{
