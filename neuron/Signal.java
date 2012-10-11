@@ -2,19 +2,34 @@ package jaer.myjaer.neuron;
 
 import java.awt.geom.Point2D;
 
+/**
+* This is the signal object. It stores information about the passing stimulus, as 
+* detected by the associated neuron object. Such information is relayed between neurons in 
+* order to track the movement of the stimulus. 
+*/
 public class Signal
 {
-	private int label;
-	private int polarity;
-	private int expectedArrivalTime;
-	private float expectedVelocity; 
-	private int priority;
-	private int counter;
-	private int timestamp;
-	private Point2D.Float location;
-	private	int tier;
+	private int label; // Signal label, used as a key to hash table storing all signals in memory
+	private int polarity; // Stimulus polarity, either Polarity.On or Polarity.Off
+	private int expectedArrivalTime; // The estimated arrival time of the stimulus at a neighboring neuron
+	private float expectedVelocity;  // The estimated velocity of the stimulus
+	private int priority; // All signals below a global priority threshold are wiped from memory. The priority determines how long a signal is stored
+	private int counter; // The number of hops from one neuron to another
+	private int timestamp; // Time of creation/detection
+	private Point2D.Float location; // Location of the signal, corresponds to the location of the detecting neuron
+	private	int tier; // The neuron's radial tier
 	
-	public Signal(int expectedArrivalTime, float expectedVelocity, int priority, int signal_counter, int counter, int timestamp, Point2D.Float location, int polarity)
+    /**
+    * Constructor
+    * @param expectedArrivalTime
+    * @param expectedVelocity
+    * @param priority
+    * @param counter
+    * @param timestamp
+    * @param location
+    * @param polarity
+    */
+	public Signal(int expectedArrivalTime, float expectedVelocity, int priority, int counter, int timestamp, Point2D.Float location, int polarity)
 	{
 		this.setExpectedArrivalTime(expectedArrivalTime);
 		this.setExpectedVelocity(expectedVelocity);
@@ -25,48 +40,81 @@ public class Signal
 		this.setPolarity(polarity);
 	}
 	
+    /**
+    * @param tier The neuron tier
+    */
 	public void setSignalTier(int tier)
 	{
 		this.tier = tier;
 	}
 	
+    /**
+    * @return tier
+    */
 	public int getSignalTier()
 	{
 		return this.tier;
 	}
 
+    /**
+    * @return label 
+    */
 	public int getLabel() {
 		return label;
 	}
 
+    /**
+    * @param label The signal's label
+    */
 	public void setLabel(int label) {
 		this.label = label;
 	}
 
+    /**
+    * @return polarity
+    */
 	public int getPolarity() {
 		return polarity;
 	}
 
+    /**
+    * @param polarity the polarity of the stimulus
+    */
 	public void setPolarity(int polarity) {
 		this.polarity = polarity;
 	}
 
+    /**
+    * @return expectedArrivalTime
+    */
 	public int getExpectedArrivalTime() {
 		return expectedArrivalTime;
 	}
 
+    /**
+    * @param expectedArrivalTime the estimated signal arrival time
+    */
 	public void setExpectedArrivalTime(int expectedArrivalTime) {
 		this.expectedArrivalTime = expectedArrivalTime;
 	}
 
+    /**
+    * @return expectedVelocity
+    */
 	public float getExpectedVelocity() {
 		return expectedVelocity;
 	}
 
+    /**
+    * @param expectedVelocity the estimated velocity of the signal
+    */
 	public void setExpectedVelocity(float expectedVelocity) {
 		this.expectedVelocity = expectedVelocity;
 	}
 
+    /**
+    * @return priorty
+    */
 	public int getPriority() {
 		return priority;
 	}
@@ -76,7 +124,7 @@ public class Signal
 	}
 
 	/**
-	 * @return the counter
+	 * @return counter
 	 */
 	public int getCounter() {
 		return counter;
@@ -123,6 +171,9 @@ public class Signal
 	}
 
 	
+    /**
+    * @param priority 
+    */
 	public void setPriority(int priority) {
 		this.priority = priority;
 		

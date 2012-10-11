@@ -2,7 +2,7 @@ package jaer.myjaer.neuron;
 
 import jaer.myjaer.robotcontrol.AbstractImageReceiver.FilterLevel;
 import jaer.myjaer.robotcontrol.Data;
-import jaer.myjaer.robotcontrol.ImageReceiver4;
+import jaer.myjaer.robotcontrol.ImageReceiver;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Float;
@@ -25,9 +25,13 @@ public class Memory implements Cloneable
 	private int index;
 	private Neuron neuron;
 	
-	private static ImageReceiver4 filter;
+	private static ImageReceiver filter;
 	
-
+    /**
+    * Constructor
+    * @param index
+    * @param neuron the Neuron object
+    */
 	public Memory(int index, Neuron neuron)
 	{
 		setSignals(new HashMap<Integer,Signal>());
@@ -37,12 +41,13 @@ public class Memory implements Cloneable
 		this.neuron = neuron;
 		eraseMemory();
 	}
-	
+
+	/**
+    * Confirms a signal and calculates movement vector
+    * @param signal The signal
+    */
 	public void confirm(Signal signal) {
-		// Currently, print stuff
 		signal.setPriority(6);
-		
-		
 		signal.setSignalTier(index-1); // Am only interested in a signal's cell number when it's confirmed
 		Point2D.Float neuronLocation = neuron.getLocation();
 		Point2D.Float signalLocation = signal.getLocation();
@@ -63,6 +68,10 @@ public class Memory implements Cloneable
 		}		
 	}
 	
+    /**
+    * Checks if the signal is within the established image boundaries used for processing 
+    * @param location: the location of the signal
+    */
 	public boolean checkSignalLocation(Point2D.Float location) {
 		if(location.x == 64 || location.y == 64)
 			return false;
@@ -89,9 +98,9 @@ public class Memory implements Cloneable
 	}
 
 	/**
-	 * 
-	 * @param vector
-	 * @return
+     * Checks whether the signal is moving in the right direction
+     * @param location The signal location
+	 * @param vector The movement vector
 	 */
 	public boolean checkVector(Point2D.Float location, Point2D.Float vector)
 	{
@@ -99,6 +108,11 @@ public class Memory implements Cloneable
 		return ( vector.x / target.x < 0 || vector.y / target.y < 0 )? false : true;
 	}
 
+    /** 
+     * Checks the memory for signal matches
+     * @param now The current timestamp
+     * @return a matched signal or null
+     */
 	public Signal checkForMatch(int now) {
 		int bestTime = 100000000;
 		Signal bestMatch = null;
@@ -162,6 +176,10 @@ public class Memory implements Cloneable
 		
 	}
 
+    /**
+    * Remove the signal from memory
+    * @param signal_hash 
+    */
 	public void removeSignal(int signal_hash) {
 		int before = getSignalLabels().indexOf(signal_hash);
 		getSignals().remove(signal_hash);
@@ -177,6 +195,10 @@ public class Memory implements Cloneable
 		}
 	}
 
+    /**
+    * Wipe the memory
+    *
+    */
 	void eraseMemory()
 	{
 		if(!getSignals().isEmpty())
@@ -195,11 +217,17 @@ public class Memory implements Cloneable
 		}
 	}
 	
+    /**
+    * Checks whether the memory contains any signals
+    */
 	boolean is_memory_empty()
 	{
 		return (getSignals().isEmpty()) ? true : false;
 	}
 	
+    /**
+    * copies signals from one memory instance to another
+    */
 	void copyFromMemory(Memory memory) throws CloneNotSupportedException
 	{
 		HashMap<Integer, Signal> signal_copy = (HashMap<Integer, Signal>) memory.getSignals().clone();
@@ -253,12 +281,12 @@ public class Memory implements Cloneable
 	}
 	
 	public static void setFilter(
-			ImageReceiver4 filter) {
-		if(filter instanceof ImageReceiver4)
-			Memory.filter = (ImageReceiver4) filter;
+			ImageReceiver filter) {
+		if(filter instanceof ImageReceiver)
+			Memory.filter = (ImageReceiver) filter;
 	}
 	
-	public static ImageReceiver4 getFilter()
+	public static ImageReceiver getFilter()
 	{
 		return filter;
 	}

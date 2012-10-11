@@ -1,7 +1,7 @@
 DVS128-Robot-Control
 ====================
 
-This is a part of my masters project at Edinburgh University: it involves controlling a BioLoid Premium vehicle robot using the DVS128 asynchronous sensor. Camera details: siliconretina.ini.uzh.ch/
+This is the code for my masters project at Edinburgh University: it involves controlling a BioLoid Premium vehicle robot using the DVS128 asynchronous sensor. Camera details: siliconretina.ini.uzh.ch/
 
 The software requires the jAER framework, which can be found here: http://sourceforge.net/apps/trac/jaer/wiki. 
 

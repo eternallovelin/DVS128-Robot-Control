@@ -8,7 +8,7 @@ import net.sf.jaer.event.PolarityEvent.Polarity;
 
 import jaer.myjaer.robotcontrol.AbstractImageReceiver;
 import jaer.myjaer.robotcontrol.AbstractImageReceiver.FilterLevel;
-import jaer.myjaer.robotcontrol.ImageReceiver4;
+import jaer.myjaer.robotcontrol.ImageReceiver;
 
 /**
      * Definition of leaky integrate and fire (LIF) neuron.
@@ -585,8 +585,8 @@ public class Neuron {
 	
 	public static void setFilter(
 			AbstractImageReceiver filter) {
-		if(filter instanceof ImageReceiver4)
-			Neuron.filter = (ImageReceiver4) filter;
+		if(filter instanceof ImageReceiver)
+			Neuron.filter = (ImageReceiver) filter;
 	}
 	
 	

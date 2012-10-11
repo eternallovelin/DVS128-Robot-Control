@@ -190,7 +190,7 @@ abstract public class AbstractImageReceiver extends EventFilter2D implements Fra
 	 * The velocity error threshold
 	 * Defines the control output. 
 	 */
-	protected float velocityErrorThreshold = getPrefs().getFloat("ImageReceiver4.velocityErrorThreshold", DEFAULT_VELOCITYERRORTHRESHOLD);
+	protected float velocityErrorThreshold = getPrefs().getFloat("ImageReceiver.velocityErrorThreshold", DEFAULT_VELOCITYERRORTHRESHOLD);
 	
 	/**
 	 * The signal arrival threshold
