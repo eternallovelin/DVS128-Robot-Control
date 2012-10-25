@@ -144,7 +144,7 @@ public class Memory implements Cloneable
 				System.out.println("BEST MATCH: NEURON:"+neuron.getCellNumber()+".Signal is: "+bestMatch.getLabel()+
 						"(arrival: "+ bestMatch.getExpectedArrivalTime()+", velocity: "+bestMatch.getExpectedVelocity()+")");
 			}
-			schedule_for_removal(bestMatch.getLabel());
+			scheduleForRemoval(bestMatch.getLabel());
 		}
 			
 		return bestMatch;
@@ -153,18 +153,14 @@ public class Memory implements Cloneable
 	
 	/** 
 	 * To avoid concurrentModificationExceptions
-	 * @param signal_hash
+	 * @param signalHash
 	 */
-	public void schedule_for_removal(int signal_hash)
+	public void scheduleForRemoval(int signalHash)
 	{
-		if(!getScheduled().contains(signal_hash))
-			getScheduled().add(signal_hash);
+		if(!getScheduled().contains(signalHash))
+			getScheduled().add(signalHash);
 	}
 	
-	/** 
-	 * To avoid concurrentModificationExceptions
-	 * @param signal_hash
-	 */
 	public void doSignalRemoval()
 	{
 		for(int hash: getScheduled())
@@ -178,17 +174,17 @@ public class Memory implements Cloneable
 
     /**
     * Remove the signal from memory
-    * @param signal_hash 
+    * @param signalHash 
     */
-	public void removeSignal(int signal_hash) {
-		int before = getSignalLabels().indexOf(signal_hash);
-		getSignals().remove(signal_hash);
-		int hash_index = getSignalLabels().indexOf(signal_hash);
-		if(hash_index == -1)
+	public void removeSignal(int signalHash) {
+		int before = getSignalLabels().indexOf(signalHash);
+		getSignals().remove(signalHash);
+		int hashIndex = getSignalLabels().indexOf(signalHash);
+		if(hashIndex == -1)
 			return;
 		try
 		{
-			getSignalLabels().remove(hash_index);
+			getSignalLabels().remove(hashIndex);
 		}
 		catch(IndexOutOfBoundsException e)
 		{
@@ -213,14 +209,14 @@ public class Memory implements Cloneable
 			{
 				signals += label+";";
 			}
-			System.out.println("ERASE: NEURON:"+neuron.getCellNumber()+". Value of isEmpty():"+is_memory_empty()+"; Signals:"+signals);
+			System.out.println("ERASE: NEURON:"+neuron.getCellNumber()+". Value of isEmpty():"+isMemoryEmpty()+"; Signals:"+signals);
 		}
 	}
 	
     /**
     * Checks whether the memory contains any signals
     */
-	boolean is_memory_empty()
+	boolean isMemoryEmpty()
 	{
 		return (getSignals().isEmpty()) ? true : false;
 	}
@@ -230,16 +226,16 @@ public class Memory implements Cloneable
     */
 	void copyFromMemory(Memory memory) throws CloneNotSupportedException
 	{
-		HashMap<Integer, Signal> signal_copy = (HashMap<Integer, Signal>) memory.getSignals().clone();
-		LinkedList<Integer> hash_copy = (LinkedList<Integer>) memory.getSignalLabels().clone();
+		HashMap<Integer, Signal> signalCopy = (HashMap<Integer, Signal>) memory.getSignals().clone();
+		LinkedList<Integer> hashCopy = (LinkedList<Integer>) memory.getSignalLabels().clone();
 		String signals = "";
-		for(int i : hash_copy)
+		for(int i : hashCopy)
 		{
 			if(!getSignalLabels().contains(i))
 			{
 				if(filter.LEVEL == FilterLevel.DEBUG)
 					signals += i+";";
-				this.getSignals().put(i, signal_copy.get(i));
+				this.getSignals().put(i, signalCopy.get(i));
     			this.getSignalLabels().add(i);
 			}        			
 		}

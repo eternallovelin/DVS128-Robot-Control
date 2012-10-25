@@ -891,11 +891,11 @@ abstract public class AbstractImageReceiver extends EventFilter2D implements Fra
 		
 		if(drawVectors)
 		{
-			Enumeration<Point2D.Float> vector_iterator = opticalFlowVectors.keys();
+			Enumeration<Point2D.Float> vectorIterator = opticalFlowVectors.keys();
 			gl.glColor3f(1.0f,0.0f,0.0f);
-			while(vector_iterator.hasMoreElements())
+			while(vectorIterator.hasMoreElements())
 			{
-				Point2D.Float source = vector_iterator.nextElement();
+				Point2D.Float source = vectorIterator.nextElement();
 				Point2D.Float vec = opticalFlowVectors.get(source);
 				
 				
@@ -1012,8 +1012,8 @@ abstract public class AbstractImageReceiver extends EventFilter2D implements Fra
 			Iterator<Integer> itr = firingNeurons.iterator();
 			while(itr.hasNext())
 			{
-				Neuron firing_neuron = neurons.get(itr.next());
-				Float loc = firing_neuron.getLocation();
+				Neuron firingNeuron = neurons.get(itr.next());
+				Float loc = firingNeuron.getLocation();
 				gl.glColor3f(0.0f,1.0f,0.0f);
 				gl.glBegin(GL.GL_QUADS);
 				gl.glVertex2f(loc.x-1, loc.y);

@@ -463,17 +463,17 @@ public class Neuron {
     /**
 	 * Computes the distance between this neuron and its immediate neighbor, given by its index
 	 */
-    public float computeNeuronDistance(int _this, int neighbor)
+    public float computeNeuronDistance(int thisNeuron, int neighbor)
     {
     	int numNeurons = rNeurons.size();
     	float distance;
-    	if((_this == 1 && neighbor == 0) || (_this == numNeurons && neighbor == numNeurons + 1))
+    	if((thisNeuron == 1 && neighbor == 0) || (thisNeuron == numNeurons && neighbor == numNeurons + 1))
     		return 0;
     	else
     	{
-    		if(_this == neighbor + 1)
-    			distance = (float)(2*RADIUS*_this) / (float)(numNeurons*(numNeurons - 1));
-    		else if(_this == neighbor - 1)
+    		if(thisNeuron == neighbor + 1)
+    			distance = (float)(2*RADIUS*thisNeuron) / (float)(numNeurons*(numNeurons - 1));
+    		else if(thisNeuron == neighbor - 1)
     			distance = (float)(2*RADIUS*neighbor) / (float)(numNeurons*(numNeurons-1));
     		else
     			distance = 0;
@@ -520,22 +520,22 @@ public class Neuron {
     /**
 	 * Computes the distances to its immediate neighbors
 	 */
-    float[] getDistances(int mem_id)
+    float[] getDistances(int memoryId)
     {
     	float[] dist = new float[2];
-    	float prev_distance, next_distance = 0.0f;
-    	if(mem_id == 1)
+    	float prevDistance, nextDistance = 0.0f;
+    	if(memoryId == 1)
     	{
-    		next_distance = computeNeuronDistance(index, index+1);
-    		prev_distance = computeNeuronDistance(index, index-1);
+    		nextDistance = computeNeuronDistance(index, index+1);
+    		prevDistance = computeNeuronDistance(index, index-1);
     	}
     	else
     	{
-    		next_distance = computeNeuronDistance(index,index-1);
-    		prev_distance = computeNeuronDistance(index, index+1);
+    		nextDistance = computeNeuronDistance(index,index-1);
+    		prevDistance = computeNeuronDistance(index, index+1);
     	}
-    	dist[0] = next_distance;
-    	dist[1] = prev_distance;
+    	dist[0] = nextDistance;
+    	dist[1] = prevDistance;
     	return dist;
     }
 	

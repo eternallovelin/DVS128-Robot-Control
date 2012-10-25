@@ -135,21 +135,21 @@ public class ImageReceiver extends AbstractImageReceiver implements Observer {
 	        	
 	        	/** Find nearest retina radius */
 	        	Point2D.Float distance = new Point2D.Float(pe.x - 64,pe.y-64);
-	        	double dot_product = (double)(distance.x); // Am using the (1,0) elementary vector
+	        	double dProduct = (double)(distance.x); // Am using the (1,0) elementary vector
 	        	double length = (double)Math.sqrt(distance.x*distance.x+distance.y*distance.y);
 	        	double angle; // Using degrees here. This is the angle that the event forms with the X axis
 	        	if(distance.y < 0)
-	        		angle = 360 - Math.toDegrees(Math.acos(dot_product/length));
+	        		angle = 360 - Math.toDegrees(Math.acos(dProduct/length));
 	        	else
-	        		angle = Math.toDegrees(Math.acos(dot_product/length));
+	        		angle = Math.toDegrees(Math.acos(dProduct/length));
 	        	int numRadii = radii.size();
-	        	int radius_index = (int)(angle/this.angle) % numRadii; // Find the closest radius to the event
+	        	int radIndex = (int)(angle/this.angle) % numRadii; // Find the closest radius to the event
 	        	int remainder = (int)(angle % this.angle);
 	        	if(remainder >= 5)
 	        	{
-        			radius_index = (radius_index+1) % numRadii;
+        			radIndex = (radIndex+1) % numRadii;
 	        	}
-	        	LinkedList<Neuron> radius  = radii.get(radius_index);
+	        	LinkedList<Neuron> radius  = radii.get(radIndex);
 	        		        	
 	        	for (Neuron neuron : radius) // Look for the first neuron that "sees" the event
 	        	{

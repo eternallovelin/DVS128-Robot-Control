@@ -133,7 +133,7 @@ public class MemoryBank
        		}
        		if(signal.getPriority() <= filter.getPriorityThreshold())
        		{
-       			realMemory.schedule_for_removal(signal.getLabel());
+       			realMemory.scheduleForRemoval(signal.getLabel());
        			if(filter.LEVEL == FilterLevel.DEBUG)
 				{
 					System.out.println("SILENTUPDATE:"+"NEURON:"+neuron.getCellNumber()+".Signal "+ signal.getLabel()+" scheduled for removal");
@@ -194,22 +194,22 @@ public class MemoryBank
     		if(filter.LEVEL == FilterLevel.DEBUG)
     			System.out.println("UPDATESINGLE (CREATE/MATCH): NEURON: "+ neuron.getCellNumber()+". Distance between neuron and edge is "+ distance+".");
     		Neuron neighbor = neuron.fetchNeighbor(id);
-        	MemoryBank neighbor_memory = null;
+        	MemoryBank neighborMemory = null;
         	if(neighbor != null)
         	{
         		if(id == 1)
             	{
-            		neighbor_memory = neighbor.getLowMemory();        		
+            		neighborMemory = neighbor.getLowMemory();        		
             	}
             		
             	else if(id == 0)
-            		neighbor_memory = neighbor.getHighMemory();
+            		neighborMemory = neighbor.getHighMemory();
         	}    	
         	Signal match = realMemory.checkForMatch(now);
-        	if(match == null || realMemory.is_memory_empty())
+        	if(match == null || realMemory.isMemoryEmpty())
         	{        		
-        		Signal curr_signal = createNewSignal(id, polarity, now);
-        		propagate(neighbor_memory, curr_signal);
+        		Signal currSignal = createNewSignal(id, polarity, now);
+        		propagate(neighborMemory, currSignal);
         		lastSignalPolarity = polarity;
         		lastTimeSwitched = now;
         		
@@ -234,7 +234,7 @@ public class MemoryBank
     			}
     			match.setLocation(neuron.getLocation());	
     			realMemory.doSignalRemoval();
-    			propagate(neighbor_memory, match);
+    			propagate(neighborMemory, match);
     			lastSignalPolarity = neuron.computePolarity();
     			lastTimeSwitched = now;
     		}
