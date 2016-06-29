@@ -9,6 +9,7 @@ This is heavilly customized code for a specific scenario, based on experiments b
 The control algorithm was based on and adapted from this paper: http://cognet.mit.edu/journal/10.1162/089976699300016700 , though my algorithm is unique in it using an asynchronous, non-frame-based camera, the DVS128 (so, further modifications were done)
 
 The following directory structure is included:
+
 1. divers/ - The driver for the DVS128 retina, located in drivers/ - I've included both the Windows and Linux drivers, and a readme, as downloaded from the jaer website (abovementioned);
 2. lib/ - All libraries, used by Eclipse to start the jaer software. 
 3. robotcontrol/ - Contains the filter application that runs on top of JAer, along with custom logic for creating and updating the image data, and the actual controling algorithm which uses the visual data to navigate the robot;
